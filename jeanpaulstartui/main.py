@@ -59,16 +59,6 @@ def process_args():
         help="path to tags config"
     )
     parser.add_argument(
-        '-e',
-        '--elastic',
-        help='url of the elasticsearch server (i.e http://192.0.9.171:9200/)'
-    )
-    parser.add_argument(
-        '-i',
-        '--elastic-index',
-        help='index prefix for the team'
-    )
-    parser.add_argument(
         '-u',
         '--username',
         type=str,
@@ -80,9 +70,6 @@ def process_args():
 
 
 def _set_package_logger():
-    logging.getLogger("elasticsearch").setLevel(logging.ERROR)
-    logging.getLogger("elasticsearch1").setLevel(logging.ERROR)
-    logging.getLogger("elasticsearch7").setLevel(logging.ERROR)
     logging.getLogger("urllib3").setLevel(logging.INFO)
 
 
@@ -100,8 +87,6 @@ if __name__ == '__main__':
     launcher = Launcher()
     launcher.batch_directories = args.batches
     launcher.tags_filepath = args.tags
-    launcher.elasticsearch_url = args.elastic
-    launcher.elasticsearch_index_prefix = args.elastic_index
     launcher.username = args.username
     launcher.update()
     launcher.show()

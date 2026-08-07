@@ -14,8 +14,6 @@ class Launcher(object):
         self._view.controller = self
         self.batch_directories = list()
         self.tags_filepath = None
-        self.elasticsearch_url = None
-        self.elasticsearch_index_prefix = None
         self.username = None
         self.version = "unknown"
 
@@ -25,8 +23,6 @@ class Launcher(object):
             batch_directories=self.batch_directories,
             username=self.username,
             tags_filepath=self.tags_filepath,
-            elasticsearch_url=self.elasticsearch_url,
-            elasticsearch_index=self.elasticsearch_index_prefix
         )
         self._view.populate_layout(batches)
         self._view.set_version("version " + self.version)
