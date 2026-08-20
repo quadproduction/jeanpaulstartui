@@ -102,10 +102,49 @@ class LauncherWidget(QWidget):
             batch_button = self._make_batch_button(batch)
             self.batches_layout.addWidget(batch_button)
 
+    def _create_menu_button(self, button, batch):
+        menu_button = QToolButton(button)
+        menu_button.setObjectName(batch.name + '_options_button')
+        menu_button.setArrowType(Qt.DownArrow)
+        menu_button.setAutoRaise(True)
+        menu_button.setFixedSize(14, 14)
+        menu_button.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        menu_button.setToolTip("Options")
+
+        menu_target_button = QToolButton(button)
+        menu_target_button.setObjectName(batch.name + '_options_hitbox')
+        menu_target_button.setCursor(QCursor(Qt.PointingHandCursor))
+        menu_target_button.setPopupMode(QToolButton.InstantPopup)
+        menu_target_button.setAutoRaise(True)
+        menu_target_button.setFixedSize(28, 28)
+        menu_target_button.setToolTip("Options")
+        menu_target_button.setStyleSheet(
+            "QToolButton { background: transparent; border: none; }"
+            "QToolButton::menu-indicator { image: none; }"
+        )
+
+        return menu_button, menu_target_button
+
+    def _move_menu_buttons(self, button, menu_button, menu_target_button):
+        arrow_x = button.width() - menu_button.width() - 6
+        arrow_y = button.height() - menu_button.height() - 6
+        menu_button.move(
+            arrow_x,
+            arrow_y
+        )
+        menu_target_button.move(
+            arrow_x - (menu_target_button.width() - menu_button.width()) // 2,
+            arrow_y - (menu_target_button.height() - menu_button.height()) // 2
+        )
+        menu_target_button.raise_()
+        menu_button.raise_()
+
     def _make_batch_button(self, batch):
         button = QPushButton(self)
         button_icon = QLabel()
         dpix = self.physicalDpiX()
+        option_mandatory = getattr(batch, "option_mandatory", True)
+        has_optional_choice = bool(batch.options) and not option_mandatory
 
         image_path = os.path.expandvars(batch.icon_path)
         if os.path.isfile(image_path):
@@ -126,7 +165,18 @@ class LauncherWidget(QWidget):
         button_icon.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         button_icon.setContentsMargins(0, 8, 0, 0)
 
-        label = self._setup_label_name(batch.name, batch.version and batch.stagings is None)
+        label = self._setup_label_name(
+            batch.name,
+            (batch.version and batch.stagings is None and not has_optional_choice)
+        )
+        if has_optional_choice and isinstance(label, QLabel):
+            label.setContentsMargins(0, 0, 8, 0)
+
+        menu_button = None
+        menu_target_button = None
+        if has_optional_choice:
+            menu_button, menu_target_button = self._create_menu_button(button, batch)
+
         if batch.description:
             button.setToolTip(batch.description)
 
@@ -147,7 +197,11 @@ class LauncherWidget(QWidget):
         button.setLayout(button_layout)
         button.setCursor(QCursor(Qt.PointingHandCursor))
         button.batch = batch
-        self._setup_menu(batch, button, label)
+        self._setup_menu(batch, button, label, menu_target_button or menu_button, option_mandatory)
+
+        if has_optional_choice:
+            self._move_menu_buttons(button, menu_button, menu_target_button)
+            
         on_click = functools.partial(self.controller.batch_clicked, batch, batch.version)
         button.clicked.connect(on_click)
         return button
@@ -190,7 +244,7 @@ class LauncherWidget(QWidget):
         version_text.setGeometry(0, 0, dpix - 10, dpix)
         version_text.setStyleSheet('QLabel { color: #808080; }')
 
-    def _setup_menu(self, batch, button, label):
+    def _setup_menu(self, batch, button, label, menu_button=None, option_mandatory=True):
         """ Create a menu for the button.
         If the batch has options, create a menu with the options (old staging system).
         If the batch has stagings, create a menu with the stagings.
@@ -202,7 +256,10 @@ class LauncherWidget(QWidget):
                 option_action = options_menu.addAction(option.name)
                 on_click = functools.partial(self.controller.batch_clicked, batch, option.name)
                 option_action.triggered.connect(on_click)
-            button.setMenu(options_menu)
+            if option_mandatory:
+                button.setMenu(options_menu)
+            elif menu_button:
+                menu_button.setMenu(options_menu)
         elif batch.stagings is not None:
             staging_menu = QMenu(button)
             for staging in batch.stagings:
@@ -235,4 +292,3 @@ def _add_return_line(string, length):
         if last_space != -1:
             string = string[:last_space] + return_line + _add_return_line(string[last_space + 1:], length)
     return string
-
