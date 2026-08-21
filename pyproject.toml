@@ -1,0 +1,37 @@
+[project]
+name = "jeanpaulstartui"
+version = "4.1.1"
+description = "Ceci n'est pas un pipe"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "loguru~=0.7.3",
+    "markupsafe~=3.0.3",
+    "packaging~=26.3",
+    "pyside6~=6.11.2",
+    "pyyaml~=6.0.3",
+    "jeanpaulstart~=2.3.0"
+]
+
+
+[[tool.uv.index]]
+name = "local"
+url = "http://127.0.0.1:8080/simple"
+
+[tool.uv.sources]
+jeanpaulstart = { index = "local" }
+
+[tool.uv]
+allow-insecure-host = ["127.0.0.1"]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["jeanpaulstartui*"]
+
+[project.scripts]
+jeanpaulstartui = "jeanpaulstartui.__main__:main"
+

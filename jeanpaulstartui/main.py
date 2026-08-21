@@ -73,7 +73,7 @@ def _set_package_logger():
     logging.getLogger("urllib3").setLevel(logging.INFO)
 
 
-if __name__ == '__main__':
+def main():
     log = logging.getLogger()
     log.setLevel(logging.DEBUG)
     _set_package_logger()
@@ -92,3 +92,6 @@ if __name__ == '__main__':
     launcher.show()
 
     app.exec()
+
+if __name__ == '__main__':
+    main()
