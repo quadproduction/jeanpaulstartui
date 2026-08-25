@@ -33,5 +33,5 @@ where = ["."]
 include = ["jeanpaulstartui*"]
 
 [project.scripts]
-jeanpaulstartui = "jeanpaulstartui.__main__:main"
+jeanpaulstartui = "jeanpaulstartui.main:main"
 

@@ -4,8 +4,6 @@ import tempfile
 import subprocess
 
 
-
-
 def main():
     main_filepath = os.path.join(os.path.dirname(__file__), 'main.py')
 
