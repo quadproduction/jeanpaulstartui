@@ -1,6 +1,6 @@
 [project]
 name = "jeanpaulstartui"
-version = "4.1.1"
+dynamic = ["version"]
 description = "Ceci n'est pas un pipe"
 readme = "README.md"
 requires-python = ">=3.14"
@@ -32,6 +32,8 @@ build-backend = "setuptools.build_meta"
 where = ["."]
 include = ["jeanpaulstartui*"]
 
+[tool.setuptools.dynamic]
+version = {attr = "jeanpaulstartui.version.__version__"}
+
 [project.scripts]
 jeanpaulstartui = "jeanpaulstartui.main:main"
-
