@@ -12,6 +12,8 @@ from jeanpaulstartui import ROOT
 from jeanpaulstartui.view.progress_label import ProgressLabel
 from jeanpaulstartui.utils import window_cache
 
+LABEL_WRAP_LENGTH = 15
+
 
 def _clear_layout(layout):
     for i in reversed(range(layout.count())):
@@ -167,7 +169,8 @@ class LauncherWidget(QWidget):
 
         label = self._setup_label_name(
             batch.name,
-            (batch.version and batch.stagings is None and not has_optional_choice)
+            (batch.version and batch.stagings is None and not has_optional_choice),
+            LABEL_WRAP_LENGTH
         )
         if has_optional_choice and isinstance(label, QLabel):
             label.setContentsMargins(0, 0, 8, 0)
@@ -187,12 +190,13 @@ class LauncherWidget(QWidget):
 
         button_layout.addWidget(button_icon)
         button_layout.addWidget(label)
-        button_layout.setSpacing(0)
         button_layout.setContentsMargins(4, 4, 4, 4)
+
+        button_height = dpix + (6 if len(batch.name) > LABEL_WRAP_LENGTH else 0)
 
         button.setText('')
         button.setDefault(True)
-        button.setFixedSize(dpix, dpix)
+        button.setFixedSize(dpix, button_height)
         button.setObjectName(batch.name + '_button')
         button.setLayout(button_layout)
         button.setCursor(QCursor(Qt.PointingHandCursor))
@@ -206,27 +210,32 @@ class LauncherWidget(QWidget):
         button.clicked.connect(on_click)
         return button
 
-    def _setup_label_name(self, text, as_button=False):
+    def _setup_label_name(self, text, as_button=False, wrap_length=LABEL_WRAP_LENGTH):
         """ Create a label with a text and a word wrap.
         If as_button is True, the label will be a button.
         
         Args:
             text (str): Text to display
             as_button (bool): If True, the label will be a button
+            wrap_length (int): Length at which return line is added
             
         Returns:
             QWidget: Label with the text
 
         """
+        wrapped_text = _add_return_line(text, wrap_length)
+        has_multiple_lines = len(text) > wrap_length
+
         if not as_button:
-            label = QLabel(text)
-            label.setAlignment(Qt.AlignCenter | Qt.AlignBottom)
+            label = QLabel(wrapped_text)
+            vertical_alignment = Qt.AlignBottom if has_multiple_lines else Qt.AlignVCenter
+            label.setAlignment(Qt.AlignHCenter | vertical_alignment)
             label.setWordWrap(True)
             label.setTextInteractionFlags(Qt.NoTextInteraction)
             label.setMouseTracking(False)
             label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         else:
-            label = QPushButton(_add_return_line(text, 15))
+            label = QPushButton(wrapped_text)
             label.setMouseTracking(False)
             label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
             label.setStyleSheet('QPushButton::menu-indicator { image: none; width: 0px; }')
