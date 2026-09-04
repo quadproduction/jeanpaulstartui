@@ -7,7 +7,7 @@ import argparse
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 
-from jeanpaulstartui import ROOT
+from jeanpaulstartui import ROOT, __version__
 from jeanpaulstartui.launcher import Launcher
 
 
@@ -84,7 +84,7 @@ def main():
         stylesheet = str(f_stylesheet.read())
     app.setStyleSheet(stylesheet)
 
-    launcher = Launcher()
+    launcher = Launcher(__version__)
     launcher.batch_directories = args.batches
     launcher.tags_filepath = args.tags
     launcher.username = args.username

@@ -9,13 +9,13 @@ def _error_as_status(executor):
 
 class Launcher(object):
 
-    def __init__(self):
+    def __init__(self, version="unknown"):
         self._view = LauncherWidget()
         self._view.controller = self
         self.batch_directories = list()
         self.tags_filepath = None
         self.username = None
-        self.version = "unknown"
+        self.version = version
 
     def update(self):
         jeanpaulstart.load_plugins()
@@ -25,7 +25,7 @@ class Launcher(object):
             tags_filepath=self.tags_filepath,
         )
         self._view.populate_layout(batches)
-        self._view.set_version("version " + self.version)
+        self._view.set_version(self.version)
 
     def show(self):
         self._view.show()
